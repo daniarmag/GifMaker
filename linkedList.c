@@ -16,7 +16,6 @@ Frame* createFrame(char* name, unsigned int duration, char* path)
 		f->duration = duration;
 		f->path = path;
 	}
-
 	return f;
 }
 
@@ -60,13 +59,9 @@ void deleteFrame(Frame* f)
 	if (f)
 	{
 		if (f->path)
-		{
 			free(f->path);
-		}
 		if (f->name)
-		{
 			free(f->name);
-		}
 		free(f);
 	}
 }
@@ -91,9 +86,7 @@ void addNewFrame(FrameNode** list)
 		free(newLink);
 	}
 	else
-	{
 		fclose(pic);
-	}
 
 	if (pic) // file is OK - add the frame to the movie
 	{
@@ -107,16 +100,12 @@ void addNewFrame(FrameNode** list)
 		newLink->next = NULL;
 
 		if (!(*list)) // empty list
-		{
 			*list = newLink;
-		}
 		else
 		{
 			iterator = *list;
 			while (iterator->next)
-			{
 				iterator = iterator->next;
-			}
 			iterator->next = newLink;
 		}
 	}
@@ -135,16 +124,11 @@ void removeFrame(FrameNode** frameList)
 	printf("Enter the name of the frame you wish to erase\n");
 	char* name = (char*)malloc(MAX_NAME_SIZE);
 	myFgets(name, MAX_NAME_SIZE);
-
 	toErase = removeAndReturn(frameList, name);
 	if (!toErase)
-	{
 		printf("The frame was not found\n");
-	}
 	else
-	{
 		deleteList(&toErase); // only the removed node will be deleted from the memory
-	}
 	free(name);
 }
 
@@ -171,9 +155,7 @@ void changeIndex(FrameNode** frameList)
 	//get the requested link if exists
 	link = removeAndReturn(frameList, name);
 	if (!link)
-	{
 		printf("this frame does not exist\n");
-	}
 	else
 	{
 		iter = *frameList;
@@ -195,9 +177,7 @@ void changeIndex(FrameNode** frameList)
 			{
 				//go to the link previous to the new place 
 				for (i = 0; i < index - 2 && iter; i++)
-				{
 					iter = iter->next;
-				}
 				if (iter)
 				{
 					link->next = iter->next;
@@ -206,17 +186,13 @@ void changeIndex(FrameNode** frameList)
 					badIndex = FALSE;
 				}
 				else
-				{
 					printf("The movie contains only %d frames!\n", i + 1);
-				}
-			}//else
-		}//doWhile
+			}
+		}
 		while (badIndex);
-	}//else
+	}
 	free(name);
-}//function
-
-
+}
 
 /**
 Change the duration of a frame.
@@ -230,12 +206,9 @@ void changeDurFrame(FrameNode* frameList)
 	int duration = 0;
 	printf("enter the name of the frame\n");
 	myFgets(name, MAX_NAME_SIZE);
-
-	Frame* frame = findFrame(frameList, name);
-	if (!frame)
-	{
+	Frame* frame;
+	if (!(frame = findFrame(frameList, name)))
 		printf("The frame does not exist\n");
-	}
 	else
 	{
 		printf("Enter the new duration\n");
@@ -348,10 +321,8 @@ FrameNode* removeAndReturn(FrameNode** list, char* name)
 	FrameNode* iter = *list;
 	FrameNode* ans = NULL;
 	if (!iter)
-	{
-		// empty list
-		// we will return NULL
-	}
+		return NULL;
+
 	//in case its the first link
 	else if (strcmp(iter->frame->name, name) == 0)
 	{
@@ -371,9 +342,7 @@ FrameNode* removeAndReturn(FrameNode** list, char* name)
 				found = 1;
 			}
 			else
-			{
 				iter = iter->next;
-			}
 		}
 	}
 	return ans;
