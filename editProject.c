@@ -21,16 +21,12 @@ int menu(void)
 		printf(" [%d] List frames\n", PRINT);
 		printf(" [%d] Play movie!\n", PLAY);
 		printf(" [%d] Save project\n", SAVE);
-
 		scanf("%d", &ans);
 		getchar(); //remove \n from buffer
-
 		// check validity of user's answer
 		valid = (ans >= EXIT && ans <= SAVE);
 		if (!valid)
-		{
 			printf("You should type one of the options - %d-%d!\n", EXIT, SAVE);
-		}
 	}
 	return ans;
 }
@@ -74,11 +70,8 @@ int main(void)
 			saveProject(movie);
 			break;
 		}
-
-
 	} while (choice != EXIT);
 	printf("\nBye!");
-
 	deleteList(&movie);
 	getchar();
 	return 0;
@@ -94,11 +87,9 @@ void saveProject(FrameNode* list)
 	char* path = (char*)malloc(MAX_PATH_SIZE);
 	printf("Where to save the project? enter a full path and file name\n");
 	myFgets(path, MAX_PATH_SIZE);
-	FILE* fptr = fopen(path, "wt");
-	if (fptr == NULL)
-	{
+	FILE* fptr;
+	if ((fptr = fopen(path, "wt")) == NULL)
 		printf("Error! canot create file");
-	}
 	else
 	{
 		while (list)
@@ -122,29 +113,23 @@ FrameNode* openingMenu(void)
 	int validChoice = FALSE;
 	FrameNode* movie = NULL;
 	FILE* fptr = NULL;
-	printf("Welcome to Magshimim Movie Maker! what would you like to do? \n");
+	printf("Welcome to GIF Maker! what would you like to do? \n");
 	while (!validChoice)
 	{
 		printf(" [%d] Create a new project\n", NEW_PROJECT);
 		printf(" [%d] Load existing project\n", LOAD_PROJECT);
 		scanf("%d", &ans);
 		getchar(); //remove \n from buffer
-		validChoice = (ans == NEW_PROJECT || ans == LOAD_PROJECT);
-		if (!validChoice)
-		{
+		if (!(validChoice = (ans == NEW_PROJECT || ans == LOAD_PROJECT)))
 			printf("Invalid choice, try again:\n");
-		}
 	}
 	if (ans == LOAD_PROJECT)
 	{
 		char* path = (char*)malloc(MAX_PATH_SIZE);
 		printf("Enter the path of the project (including project name): \n");
 		myFgets(path, MAX_PATH_SIZE);
-		fptr = (fopen(path, "r"));
-		if (fptr == NULL)
-		{
+		if ((fptr = fopen(path, "r")) == NULL)
 			printf("Error!- cant open file, creating a new project");
-		}
 		else
 		{
 			movie = readFromFile(fptr);
@@ -154,9 +139,7 @@ FrameNode* openingMenu(void)
 		}
 	}
 	else
-	{
 		printf("Working on a new project.\n");
-	}
 	return movie;
 }
 
@@ -172,15 +155,11 @@ FrameNode* readFromFile(FILE* project)
 	char* line = (char*)malloc(line_size);
 	FrameNode* movie = NULL;
 	if (project == NULL)
-	{
 		printf("Error: file pointer is null.");
-	}
 	else
 	{
 		while (fgets(line, line_size, project) != NULL) /* read a line */
-		{
 			lineToFrame(line, &movie);
-		}
 		free(line);
 	}
 	return movie;
@@ -191,44 +170,39 @@ This function parse the string into the frame details, creats a frame and add it
 Input: a string with frame info and a movie pointer
 output: none
 **/
-void lineToFrame(char* line, FrameNode** list)
+void lineToFrame(const char* line, FrameNode** list) 
 {
-	FrameNode* newLink = (FrameNode*)malloc(sizeof(FrameNode));
-	char* path = (char*)malloc(MAX_PATH_SIZE);
-	char* name = (char*)malloc(MAX_NAME_SIZE);
-	char* token = NULL;
+	FrameNode* newLink;
+	if (!(newLink = (FrameNode*)malloc(sizeof(FrameNode))))
+		return;
+
+	char path[MAX_PATH_SIZE];
+	char name[MAX_NAME_SIZE];
 	int duration = 0;
-	FrameNode* iterator = NULL;
 
-	//get the first token
-	token = strtok(line, DELIMETER);
-	strcpy(path, token);
-	path[strcspn(path, "\n")] = 0;
+	// Parse the input line
+	int tokensRead = sscanf(line, "%s %d %s", path, &duration, name);
+	if (tokensRead != 3) 
+	{
+		free(newLink);
+		return;
+	}
 
-	//get the second-duration
-	token = strtok(NULL, DELIMETER);
-	duration = atoi(token);
+	// Trim newline characters
+	path[strcspn(path, "\n")] = '\0';
+	name[strcspn(name, "\n")] = '\0';
 
-	//get the third-name
-	token = strtok(NULL, DELIMETER);
-	strcpy(name, token);
-	name[strcspn(name, "\n")] = 0;
-
-	//add the frame
+	// Create the frame
 	newLink->frame = createFrame(name, duration, path);
 	newLink->next = NULL;
 
-	//add it to the movie
-	if (!(*list))
-	{
+	// Add the frame to the end of the list
+	if (*list == NULL) 
 		*list = newLink;
-	}
-	else
-	{
-		iterator = *list;
-		while (iterator->next) {
+	else {
+		FrameNode* iterator = *list;
+		while (iterator->next) 
 			iterator = iterator->next;
-		}
 		iterator->next = newLink;
 	}
 }
